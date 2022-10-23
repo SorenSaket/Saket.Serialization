@@ -78,7 +78,7 @@ namespace Saket.Serialization
             this.maxAbsolutePosition = this.offset+target.Count;
         }
 
-        public SerializerReader(ref byte[] target, int offset = 0)
+        public SerializerReader(byte[] target, int offset = 0)
         {
             this.data = target;
             this.offset = this.absolutePosition = offset;
