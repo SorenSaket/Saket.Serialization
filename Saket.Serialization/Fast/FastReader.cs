@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Saket.Serialization
 {
-    public unsafe ref struct SerializerReader
+    public unsafe ref struct FastReader
     {
         /// <summary> The number of bytes avaliable to the reader </summary>
         public int Capacity
@@ -70,7 +70,7 @@ namespace Saket.Serialization
 
         readonly int maxAbsolutePosition;
 
-        public SerializerReader(ArraySegment<byte> target)
+        public FastReader(ArraySegment<byte> target)
         {
             this.data = target.Array;
             this.offset = this.absolutePosition = target.Offset;
@@ -78,7 +78,7 @@ namespace Saket.Serialization
             this.maxAbsolutePosition = this.offset+target.Count;
         }
 
-        public SerializerReader(byte[] target, int offset = 0)
+        public FastReader(byte[] target, int offset = 0)
         {
             this.data = target;
             this.offset = this.absolutePosition = offset;
@@ -110,6 +110,21 @@ namespace Saket.Serialization
                 }
             }
         }
+
+        public UInt64 ReadUInt64()
+        {
+            unsafe
+            {
+                fixed (byte* p = data)
+                {
+                    int position = absolutePosition;
+                    Advance(8);
+                    return *(ulong*)&p[position];
+                }
+            }
+        }
+
+
         public T[] ReadArray<T>()
             where T : unmanaged
         {
@@ -128,13 +143,13 @@ namespace Saket.Serialization
         }
 
         // ---- Serializable Serialization ----
-        public T ReadSerializable<T>() where T : ISerializable, new()
+        public T ReadSerializable<T>() where T : IFastSerializable, new()
         {
             var obj = new T();
             obj.Deserialize(ref this);
             return obj;
         }
-        public T[] ReadSerializableArray<T>() where T : ISerializable, new()
+        public T[] ReadSerializableArray<T>() where T : IFastSerializable, new()
         {
             int length = Read<int>();
 

@@ -8,7 +8,7 @@ namespace Saket.Serialization.Tests
         [TestMethod]
         public void Creation_Array()
         {
-            var writer = new SerializerWriter(77);
+            var writer = new ByteWriter(77);
 
             Assert.AreEqual(0, writer.AbsolutePosition);
             Assert.AreEqual(77, writer.Capacity);
@@ -17,14 +17,14 @@ namespace Saket.Serialization.Tests
         [TestMethod]
         public void Write_Primitive()
         {
-            var writer = new SerializerWriter();
+            var writer = new ByteWriter();
             writer.Write(1.2f);
             Assert.AreEqual(4, writer.AbsolutePosition);
         }
         [TestMethod]
         public void Write_PrimitiveArray()
         {
-            var writer = new SerializerWriter();
+            var writer = new ByteWriter();
             float[] values = new float[] { 1.2f, 23.4f, 22.0f };
             writer.Write(values);
             // length is 4*4
@@ -34,7 +34,7 @@ namespace Saket.Serialization.Tests
         [TestMethod]
         public void Write_Enum()
         {
-            var writer = new SerializerWriter();
+            var writer = new ByteWriter();
             writer.Write(TestEnumUShort.max);
             Assert.AreEqual(2, writer.AbsolutePosition);
         }
@@ -47,7 +47,7 @@ namespace Saket.Serialization.Tests
         [TestMethod]
         public void Expantion()
         {
-            var writer = new SerializerWriter(2);
+            var writer = new ByteWriter(2);
             writer.Write(124.2f);
 
             Assert.IsTrue(writer.Capacity >= 4);

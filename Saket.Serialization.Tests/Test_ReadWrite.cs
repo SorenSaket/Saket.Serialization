@@ -10,8 +10,8 @@ namespace Saket.Serialization.Tests
         [TestMethod]
         public void ReadWrite_Primitive()
         {
-            var writer = new SerializerWriter();
-            var reader = new SerializerReader(writer.DataRaw);
+            var writer = new ByteWriter();
+            var reader = new ByteReader(writer.DataRaw);
         
             float data = 23125.123f;
             writer.Write(data);
@@ -21,8 +21,8 @@ namespace Saket.Serialization.Tests
         [TestMethod]
         public void ReadWrite_PrimitiveArray()
         {
-            var writer = new SerializerWriter();
-            var reader = new SerializerReader(writer.DataRaw);
+            var writer = new ByteWriter();
+            var reader = new ByteReader(writer.DataRaw);
 
             float[] data = new float[] {2143.4f,7547.4f, 34653.1f};
             writer.Write(data);
@@ -34,8 +34,8 @@ namespace Saket.Serialization.Tests
         [TestMethod]
         public void ReadWrite_Enum()
         {
-            var writer = new SerializerWriter();
-            var reader = new SerializerReader(writer.DataRaw);
+            var writer = new ByteWriter();
+            var reader = new ByteReader(writer.DataRaw);
 
             TestEnumUShort data = TestEnumUShort.max;
             writer.Write(data);
@@ -46,8 +46,8 @@ namespace Saket.Serialization.Tests
         [TestMethod]
         public void ReadWrite_Serializable()
         {
-            var writer = new SerializerWriter();
-            var reader = new SerializerReader(writer.DataRaw);
+            var writer = new ByteWriter();
+            var reader = new ByteReader(writer.DataRaw);
 
             TestSerializable data = new TestSerializable(253,6437, new int[] { 2143, 7547, 34653 });
             writer.WriteSerializable(data);
@@ -59,7 +59,7 @@ namespace Saket.Serialization.Tests
         [TestMethod]
         public void ReadWrite_SerializableArray()
         {
-            var writer = new SerializerWriter();
+            var writer = new ByteWriter();
            
 
             TestSerializable[] data = new TestSerializable[] {
@@ -70,7 +70,7 @@ namespace Saket.Serialization.Tests
 
             writer.WriteSerializable(data);
 
-            var reader = new SerializerReader(writer.DataRaw);
+            var reader = new ByteReader(writer.DataRaw);
             var readData = reader.ReadSerializableArray<TestSerializable>();
             
             Assert.IsTrue(Enumerable.SequenceEqual(data, readData));

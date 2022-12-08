@@ -15,7 +15,7 @@ namespace Saket.Serialization.Tests
             this.modifiers = modifiers;
         }
 
-        public void Deserialize(ref SerializerReader reader)
+        public void Deserialize(ref ByteReader reader)
         {
             baseValue = reader.Read<int>();
             value = reader.Read<int>();
@@ -35,11 +35,16 @@ namespace Saket.Serialization.Tests
             return HashCode.Combine(baseValue, value, modifiers);
         }
 
-        public void Serialize(SerializerWriter writer)
+        public void Serialize(ByteWriter writer)
         {
             writer.Write(baseValue);
             writer.Write(value);
             writer.Write(modifiers);
+        }
+
+        public void Serialize(ISerializer serializer)
+        {
+            throw new NotImplementedException();
         }
 
         public static bool operator ==(TestSerializable left, TestSerializable right)
@@ -63,13 +68,11 @@ namespace Saket.Serialization.Tests
     [TestClass]
     public class Test_Reader
     {
-       
-
         [TestMethod]
         public void Creation_Array()
         {
             byte[] data = new byte[64];
-            var reader = new SerializerReader(ref data,10);
+            var reader = new ByteReader(data,10);
 
             Assert.AreEqual(10, reader.AbsolutePosition);
             Assert.AreEqual(0, reader.RelativePosition);
@@ -79,19 +82,18 @@ namespace Saket.Serialization.Tests
         public void Creation_ArraySegment()
         {
             byte[] data = new byte[64];
-            var reader = new SerializerReader(new ArraySegment<byte>(data, 10, 12));
+            var reader = new ByteReader(new ArraySegment<byte>(data, 10, 12));
 
             Assert.AreEqual(10, reader.AbsolutePosition);
             Assert.AreEqual(0, reader.RelativePosition);
             Assert.AreEqual(12, reader.Capacity);
         }
 
-
         [TestMethod]
         public void Read_Primitive()
         {
             byte[] data = new byte[64];
-            var reader = new SerializerReader(ref data,4);
+            var reader = new ByteReader( data,4);
             reader.Read<float>();
             Assert.AreEqual(8, reader.AbsolutePosition);
             Assert.AreEqual(4, reader.RelativePosition);
@@ -100,7 +102,7 @@ namespace Saket.Serialization.Tests
         public void Read_Enum()
         {
             byte[] data = new byte[64];
-            var reader = new SerializerReader(ref data, 4);
+            var reader = new ByteReader( data, 4);
             reader.Read<TestEnumUShort>();
             Assert.AreEqual(6, reader.AbsolutePosition);
             Assert.AreEqual(2, reader.RelativePosition);
@@ -116,7 +118,7 @@ namespace Saket.Serialization.Tests
         {
             Assert.ThrowsException<IndexOutOfRangeException>(() => {
                 byte[] data = new byte[64];
-                var reader = new SerializerReader(ref data, 64);
+                var reader = new ByteReader( data, 64);
                 reader.Read<float>(); 
             });
         }

@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32819.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saket.Serialization", "Saket.Serialization\Saket.Serialization.csproj", "{2A3BF9FC-3700-4795-82A7-5CFB4477A4B7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saket.Serialization.Benchmark", "Saket.Serialization.Benchmark\Saket.Serialization.Benchmark.csproj", "{468AD666-C26F-4433-A267-885D6C1463E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saket.Serialization.Tests", "Saket.Serialization.Tests\Saket.Serialization.Tests.csproj", "{AF919935-EC59-4E3E-8DFD-A9C64770159C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2F61D1D2-2055-4E0D-A798-7C5620A6D2DC}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2A3BF9FC-3700-4795-82A7-5CFB4477A4B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A3BF9FC-3700-4795-82A7-5CFB4477A4B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A3BF9FC-3700-4795-82A7-5CFB4477A4B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A3BF9FC-3700-4795-82A7-5CFB4477A4B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{468AD666-C26F-4433-A267-885D6C1463E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{468AD666-C26F-4433-A267-885D6C1463E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{468AD666-C26F-4433-A267-885D6C1463E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{468AD666-C26F-4433-A267-885D6C1463E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF919935-EC59-4E3E-8DFD-A9C64770159C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF919935-EC59-4E3E-8DFD-A9C64770159C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF919935-EC59-4E3E-8DFD-A9C64770159C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF919935-EC59-4E3E-8DFD-A9C64770159C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0DE585F7-38AD-4720-8F48-B7EE1F5AACA6}
+	EndGlobalSection
+EndGlobal

@@ -7,7 +7,7 @@ namespace Saket.Serialization
     /// <summary>
     /// Writer struct able to serialize primities and ISerializables to byte array
     /// </summary>
-    public unsafe class SerializerWriter
+    public unsafe class ByteWriter
     {
         /// <summary> The number of bytes avaliable to the writer </summary>
         public int Capacity
@@ -41,6 +41,8 @@ namespace Saket.Serialization
             get => data;
         }
 
+        public bool IsReader => false;
+
         /// <summary> 
         /// Underlying array 
         /// </summary>
@@ -58,7 +60,7 @@ namespace Saket.Serialization
         int count;
 
 
-        public SerializerWriter(int intialCapacity = 64)
+        public ByteWriter(int intialCapacity = 64)
         {
             this.data = new byte[intialCapacity];
             this.count = 0;
@@ -116,14 +118,14 @@ namespace Saket.Serialization
         // ---- Serializable Serialization ----
         public void WriteSerializable<T>(in T value) where T : ISerializable, new() 
         {
-            value.Serialize(this);
+            //value.Serialize(this);
         }
         public void WriteSerializable<T>(in T[] value) where T : ISerializable, new() 
         {
             Write(value.Length);
             for (int i = 0; i < value.Length; i++)
             {
-                value[i].Serialize(this);
+                //value[i].Serialize(this);
             }
         }
 
@@ -161,5 +163,20 @@ namespace Saket.Serialization
             Type outputType = typeof(T).IsEnum ? Enum.GetUnderlyingType(typeof(T)) : typeof(T);
             return Marshal.SizeOf(outputType);
         }
+
+        public void SerializeUnmanged<T>(ref T value) where T : unmanaged
+        {
+            Write(value);
+        }
+        public void SerializeEnum<T>(ref T value) where T: unmanaged, Enum
+        {
+            
+        }
+
+        public void Serialize<T>(ref T value) where T : ISerializable, new()
+        {
+            WriteSerializable(value);
+        }
+
     }
 }
