@@ -38,7 +38,7 @@ namespace Saket.Engine.Benchmark.Serialization
         [Benchmark]
         public void StreamWriter()
         {
-            var writer = new Saket.Serialization.SStreamWriter(stream);
+            var writer = new Saket.Serialization.StreamWriterLE(stream);
 
             for (int i = 0; i < InterationCount; i++)
             {

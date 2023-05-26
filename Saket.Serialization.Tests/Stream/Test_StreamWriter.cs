@@ -15,7 +15,7 @@ namespace Saket.Serialization.Tests.Stream
         public void Write()
         {
             MemoryStream stream = new MemoryStream();
-            SStreamWriter writer= new SStreamWriter(stream);
+            StreamWriterLE writer= new StreamWriterLE(stream);
 
             short a = -27;
             writer.SerializeInt16(ref a);

@@ -1,8 +1,5 @@
 ﻿namespace Saket.Serialization
 {
-    
-
-
     /// <summary>
     /// Interface for implementing custom serializable types.
     /// </summary>

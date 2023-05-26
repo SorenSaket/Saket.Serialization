@@ -22,7 +22,7 @@ namespace Saket.Serialization.Tests
             a.Write('a');
 
             stream.Position = 0;
-            var streamReader = new SStreamReader(stream);
+            var streamReader = new StreamReaderLE(stream);
             streamReader.LoadBytes(61);
 
             {

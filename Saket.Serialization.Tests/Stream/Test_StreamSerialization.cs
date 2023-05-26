@@ -16,14 +16,14 @@ namespace Saket.Serialization.Tests.Stream
         {
             MemoryStream stream = new MemoryStream();
 
-            SStreamWriter writer= new SStreamWriter(stream);
+            StreamWriterLE writer= new StreamWriterLE(stream);
 
             var obj = new SerializableObject(0);
 
             writer.SerializeSerializable(ref obj);
 
             stream.Position = 0;
-            var reader = new SStreamReader(stream);
+            var reader = new StreamReaderLE(stream);
 
             SerializableObject outva = new();
             reader.SerializeSerializable(ref outva);

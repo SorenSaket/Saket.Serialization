@@ -13,11 +13,11 @@ namespace Saket.Engine.Benchmark.Serialization
     [BenchmarkCategory("ArrayCopy")]
     public class Benchmark_ArrayCopy
     {
-        [Params(10000)]
-        public int ItemCount { get; set; } = 4096;
+        [Params(8192)]
+        public int ItemCount { get; set; }
 
         [Params(1)]
-        public int InterationCount { get; set; } = 1;
+        public int InterationCount { get; set; }
 
         byte[] dataSource;
 
@@ -27,11 +27,8 @@ namespace Saket.Engine.Benchmark.Serialization
         [GlobalSetup]
         public void Setup()
         {
-            dataSource = new byte[ItemCount * 16];
-            dataDestination = new byte[ItemCount * 16];
-
-            //Random rnd = new Random();
-            //rnd.NextBytes(dataSource);
+            dataSource = new byte[ItemCount];
+            dataDestination = new byte[ItemCount];
         }
 
         [BenchmarkCategory("Array.Copy()")]
@@ -44,7 +41,7 @@ namespace Saket.Engine.Benchmark.Serialization
             }
         }
 
-        [BenchmarkCategory("Custom")]
+        [BenchmarkCategory("AVX")]
         [Benchmark]
         public void Custom()
         {
@@ -58,12 +55,11 @@ namespace Saket.Engine.Benchmark.Serialization
                         {
                             for (int x = 0; x < ItemCount / 32; x++)
                             {
-                                Avx.Store(&dest[x * 32], Avx.LoadVector256(&source[x * 32]));
+                                Avx.Store(&dest[x * 32], Avx2.LoadVector256(&source[x * 32]));
                             }
                         }
                     }
                 }
-             
             }
         }
 

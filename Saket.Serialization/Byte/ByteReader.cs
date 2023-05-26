@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Saket.Serialization
+namespace Saket.Serialization.Byte
 {
     public class ByteReader
     {
@@ -74,18 +74,18 @@ namespace Saket.Serialization
 
         public ByteReader(ArraySegment<byte> target)
         {
-            this.data = target.Array;
-            this.offset = this.absolutePosition = target.Offset;
-            this.count = 0;
-            this.maxAbsolutePosition = this.offset+target.Count;
+            data = target.Array;
+            offset = absolutePosition = target.Offset;
+            count = 0;
+            maxAbsolutePosition = offset + target.Count;
         }
 
         public ByteReader(byte[] target, int offset = 0)
         {
-            this.data = target;
-            this.offset = this.absolutePosition = offset;
-            this.count = 0;
-            this.maxAbsolutePosition = -1;
+            data = target;
+            this.offset = absolutePosition = offset;
+            count = 0;
+            maxAbsolutePosition = -1;
         }
 
 
@@ -155,7 +155,7 @@ namespace Saket.Serialization
             if (length == 0)
                 return string.Empty;
             var segment = Read(length);
-            return UTF8Encoding.UTF8.GetString(segment.Array, segment.Offset, segment.Count);
+            return Encoding.UTF8.GetString(segment.Array, segment.Offset, segment.Count);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -166,7 +166,7 @@ namespace Saket.Serialization
             return new ArraySegment<byte>(data, p, length);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public UInt64 ReadUInt64()
+        public ulong ReadUInt64()
         {
             unsafe
             {
@@ -184,23 +184,23 @@ namespace Saket.Serialization
         {
             absolutePosition += length;
 #if DEBUG
-            if(maxAbsolutePosition > 0)
+            if (maxAbsolutePosition > 0)
             {
                 if (absolutePosition > maxAbsolutePosition)
                 {
-                    throw new IndexOutOfRangeException($"Read {absolutePosition - maxAbsolutePosition} bytes past underlying buffer");
+                    throw new IndexOutOfRangeException($"Read {absolutePosition - maxAbsolutePosition} bytes past underlying Buffer");
                 }
             }
             else
             {
                 if (absolutePosition > data.Length)
                 {
-                    throw new IndexOutOfRangeException($"Read {absolutePosition - data.Length} bytes past underlying buffer");
+                    throw new IndexOutOfRangeException($"Read {absolutePosition - data.Length} bytes past underlying Buffer");
                 }
             }
 #endif
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int SizeOf<T>()
         {

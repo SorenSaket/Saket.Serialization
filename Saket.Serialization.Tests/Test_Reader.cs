@@ -1,4 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Saket.Serialization.Byte;
+using Saket.Serialization.Serializable;
 
 namespace Saket.Serialization.Tests
 {

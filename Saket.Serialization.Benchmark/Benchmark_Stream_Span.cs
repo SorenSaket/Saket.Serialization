@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using Dia2Lib;
 using Saket.Serialization;
 using System;
 using System.Collections.Generic;
@@ -9,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace Saket.Engine.Benchmark.Serialization
 {
-    [BenchmarkCategory("Ser")]
-    public class Benchmark_Serialization
+    [BenchmarkCategory("Stream Span")]
+    public class Benchmark_Stream_Span
     {
-        [Params(512)]
+        [Params(8192)]
         public int ItemCount { get; set; }
 
         [Params(4)]
@@ -26,44 +27,34 @@ namespace Saket.Engine.Benchmark.Serialization
         [GlobalSetup]
         public void Setup()
         {
-            data = new byte[ItemCount*8];
+            data = new byte[ItemCount];
+
             Random rnd = new Random();
             rnd.NextBytes(data);
+
             stream = new MemoryStream(data);
         }
 
         
         [BenchmarkCategory("BinaryReader")]
         [Benchmark(Baseline = true)]
-        public void BinaryReader()
+        public void ReadExactly()
         {
-            var reader = new BinaryReader(stream);
-
             for (int i = 0; i < InterationCount; i++)
             {
                 stream.Position = 0;
-                for (int y = 0; y < ItemCount; y++)
-                {
-                    temp[0] = reader.ReadUInt64();
-                }
+                stream.ReadExactly(data, 0, ItemCount);
             }
         }
         
         [BenchmarkCategory("Steam Reader ser")]
         [Benchmark]
-        public void ASaketSer()
+        public void ReadExactlySpan()
         {
-            var reader = new Saket.Serialization.StreamReaderLE(stream);
-
             for (int i = 0; i < InterationCount; i++)
             {
                 stream.Position = 0;
-                reader.LoadBytes(ItemCount * 8);
-                for (int y = 0; y < ItemCount; y++)
-                {
-                    reader.Position = 0;
-                    reader.SerializeUInt64(ref temp[0]);
-                }
+                stream.ReadExactly(data.AsSpan(0, ItemCount));
             }
         }
     }

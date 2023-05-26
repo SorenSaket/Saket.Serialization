@@ -1,98 +1,23 @@
 ﻿using System;
-using System.Buffers.Binary;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Saket.Serialization
 {
-   
+
     /// <summary>
-    /// !Important call <see cref="SStreamReader.LoadBytes(int)"/> before calling any Serialize functions!
+    /// A stream reader that support preloading data into a buffer before interpreting it.
+    /// !Important call <see cref="StreamReaderLE.LoadBytes(int)"/> before calling any Serialize functions!
     /// </summary>
-    public class SStreamReader : ISerializer
+    public class StreamReaderLE : BaseStreamReader, ISerializer
     {
-        public long Position { get; set; }
-        public Stream stream;
-        public byte[] buffer = new byte[128];
-        public bool IsReader => true;
-
-        public SStreamReader(Stream input)
+        public StreamReaderLE(Stream input) : base(input)
         {
-            if (input == null)
-            {
-                throw new ArgumentNullException("input");
-            }
-            stream = input;
         }
 
-        /// <summary>
-        /// Ensures that there is more than the number of bytes left in stream.
-        /// Do this once before any read to ensure that you don't cross end of stream.
-        /// </summary>
-        public virtual bool LoadBytes(int numberOfBytes)
-        {
-            if (stream == null)
-                return false;
-            if(numberOfBytes <= 0)
-                throw new ArgumentOutOfRangeException(nameof(numberOfBytes));
-
-
-            int newCapacity = buffer.Length;
-            // Double the capacity until theres enough
-            while (numberOfBytes >= newCapacity)
-            {
-                newCapacity *= 2;
-            }
-
-            if(newCapacity > buffer.Length)
-            {
-                // Array.Resize is not used since the values should not be copied
-                // values can stay uninitialized since they will be overwritten by stream.Read()
-                // old array will be collected by GC
-                buffer = GC.AllocateUninitializedArray<byte>(newCapacity);
-            }
-
-            // Reset poition
-            Position = 0;
-            int bytesRead = 0;
-            int n = 0;
-            do
-            {
-				
-                n = stream.Read(buffer, bytesRead, numberOfBytes - bytesRead);
-                if (n == 0)
-                {
-                    return false;
-                }
-                bytesRead += n;
-            } while (bytesRead < numberOfBytes);
-
-            return true;
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual void Advance(int length)
-        {
-            Position += length;
-#if DEBUG
-            if(Position > buffer.Length)
-            {
-                throw new IndexOutOfRangeException($"Read {Position - buffer.Length} bytes past underlying buffer.");
-            }
-#endif
-        }
-
+        #region Serialization
         /// <summary>
         /// offset and count are unused
         /// </summary>
@@ -113,7 +38,7 @@ namespace Saket.Serialization
             if (value == null)
             {
                 value = new byte[length];
-                Array.Copy(buffer, Position, value, 0, length);
+                Array.Copy(Buffer, Position, value, 0, length);
             }
             else
             {
@@ -122,7 +47,7 @@ namespace Saket.Serialization
                 if (value.Length < requiedSize)
                     Array.Resize(ref value, requiedSize);
 
-                Array.Copy(buffer, Position, value, 0, length);
+                Array.Copy(Buffer, Position, value, 0, length);
             }
         }
 
@@ -138,7 +63,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = p[Position] == 1;
                     Advance(1);
@@ -150,7 +75,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = p[Position];
                     Advance(1);
@@ -162,7 +87,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = (sbyte)p[Position];
                     Advance(1);
@@ -176,7 +101,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(char*)&p[Position];
                     Advance(2);
@@ -205,7 +130,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(ushort*)&p[Position];
                     Advance(2);
@@ -217,7 +142,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(uint*)&p[Position];
                     Advance(4);
@@ -229,21 +154,22 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(ulong*)&p[Position];
                     Advance(8);
                 }
             }
         }
-        
-        
+
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SerializeInt16(ref short value)
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(short*)&p[Position];
                     Advance(2);
@@ -255,7 +181,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(int*)&p[Position];
                     Advance(4);
@@ -267,7 +193,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(long*)&p[Position];
                     Advance(8);
@@ -281,7 +207,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(float*)&p[Position];
                     Advance(4);
@@ -293,7 +219,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(double*)&p[Position];
                     Advance(8);
@@ -305,7 +231,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(decimal*)&p[Position];
                     Advance(16);
@@ -319,7 +245,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(Vector2*)&p[Position];
                     Advance(8);
@@ -331,7 +257,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(Vector3*)&p[Position];
                     Advance(12);
@@ -343,7 +269,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(Vector4*)&p[Position];
                     Advance(16);
@@ -355,7 +281,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(Matrix4x4*)&p[Position];
                     Advance(64);
@@ -367,13 +293,14 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(Quaternion*)&p[Position];
                     Advance(16);
                 }
             }
         }
+        #endregion
 
         #region Generic Serialization Functions
 
@@ -382,7 +309,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     value = *(T*)&p[Position];
                     Advance(Marshal.SizeOf<T>());
@@ -395,7 +322,7 @@ namespace Saket.Serialization
         {
             unsafe
             {
-                fixed (byte* p = buffer)
+                fixed (byte* p = Buffer)
                 {
                     Type t = Enum.GetUnderlyingType(typeof(T));
                     value = *(T*)&p[Position]; // Will this work?

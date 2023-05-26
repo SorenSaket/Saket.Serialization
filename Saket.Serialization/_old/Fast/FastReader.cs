@@ -196,14 +196,14 @@ namespace Saket.Serialization
             {
                 if (absolutePosition > maxAbsolutePosition)
                 {
-                    throw new IndexOutOfRangeException($"Read {absolutePosition - maxAbsolutePosition} bytes past underlying buffer");
+                    throw new IndexOutOfRangeException($"Read {absolutePosition - maxAbsolutePosition} bytes past underlying Buffer");
                 }
             }
             else
             {
                 if (absolutePosition > data.Length)
                 {
-                    throw new IndexOutOfRangeException($"Read {absolutePosition - data.Length} bytes past underlying buffer");
+                    throw new IndexOutOfRangeException($"Read {absolutePosition - data.Length} bytes past underlying Buffer");
                 }
             }
 #endif

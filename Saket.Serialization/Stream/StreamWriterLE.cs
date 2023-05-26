@@ -1,47 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Saket.Serialization
 {
-    public class SStreamWriter : ISerializer
+    /// <summary>
+    /// 
+    /// </summary>
+    public class StreamWriterLE : BaseStreamWriter,  ISerializer
     {
-        public long Position { get=> Stream.Position; set => Stream.Position = value; }
-        public bool IsReader => false;
-        public Stream Stream { get; protected set; }
-        public byte[] Buffer { get => buffer; }
-        
-        protected byte[] buffer;
-
-
-        public SStreamWriter(Stream input)
+        public StreamWriterLE(Stream input) : base(input)
         {
-            if (input == null)
-            {
-                throw new ArgumentNullException("input");
-            }
-            Stream = input;
-            buffer = new byte[64];
         }
 
-        /// <summary>
-        /// Writer doesn't need to load bytes
-        /// </summary>
-        /// <param name="numberOfBytes"></param>
-        /// <returns></returns>
-        public virtual bool LoadBytes(int numberOfBytes)
-        {
-            return true;
-        }
-        
+        #region Serialization Functions
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SerializeBytes(ref byte[] value, int offset = 0, int count = 0)
         {
@@ -80,9 +59,9 @@ namespace Saket.Serialization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SerializeChar(ref char value)
         {
-            buffer[0] = (byte)(value);
-            buffer[1] = (byte)(value >> 8);
-            Stream.Write(buffer, 0, 2);
+            Buffer[0] = (byte)(value);
+            Buffer[1] = (byte)(value >> 8);
+            Stream.Write(Buffer, 0, 2);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -102,63 +81,61 @@ namespace Saket.Serialization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SerializeInt16(ref short value)
         {
-            buffer[0] = (byte)(value >> 0);
-            buffer[1] = (byte)(value >> 8);
-            Stream.Write(buffer, 0, 2);
+            Buffer[0] = (byte)(value >> 0);
+            Buffer[1] = (byte)(value >> 8);
+            Stream.Write(Buffer, 0, 2);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SerializeInt32(ref int value)
         {
-            buffer[0] = (byte)(value >> 0);
-            buffer[1] = (byte)(value >> 8);
-            buffer[2] = (byte)(value >> 16);
-            buffer[3] = (byte)(value >> 24);
-            Stream.Write(buffer, 0, 4);
+            Buffer[0] = (byte)(value >> 0);
+            Buffer[1] = (byte)(value >> 8);
+            Buffer[2] = (byte)(value >> 16);
+            Buffer[3] = (byte)(value >> 24);
+            Stream.Write(Buffer, 0, 4);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SerializeInt64(ref long value)
         {
-            buffer[0] = (byte)value;
-            buffer[1] = (byte)(value >> 8);
-            buffer[2] = (byte)(value >> 16);
-            buffer[3] = (byte)(value >> 24);
-            buffer[4] = (byte)(value >> 32);
-            buffer[5] = (byte)(value >> 40);
-            buffer[6] = (byte)(value >> 48);
-            buffer[7] = (byte)(value >> 56);
-            Stream.Write(buffer, 0, 8);
+            Buffer[0] = (byte)value;
+            Buffer[1] = (byte)(value >> 8);
+            Buffer[2] = (byte)(value >> 16);
+            Buffer[3] = (byte)(value >> 24);
+            Buffer[4] = (byte)(value >> 32);
+            Buffer[5] = (byte)(value >> 40);
+            Buffer[6] = (byte)(value >> 48);
+            Buffer[7] = (byte)(value >> 56);
+            Stream.Write(Buffer, 0, 8);
         }
-
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SerializeUInt16(ref ushort value)
         {
-            buffer[0] = (byte)(value >> 0);
-            buffer[1] = (byte)(value >> 8);
-            Stream.Write(buffer, 0, 2);
+            Buffer[0] = (byte)(value >> 0);
+            Buffer[1] = (byte)(value >> 8);
+            Stream.Write(Buffer, 0, 2);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SerializeUInt32(ref uint value)
         {
-            buffer[0] = (byte)(value >> 0);
-            buffer[1] = (byte)(value >> 8);
-            buffer[2] = (byte)(value >> 16);
-            buffer[3] = (byte)(value >> 24);
-            Stream.Write(buffer, 0, 4);
+            Buffer[0] = (byte)(value >> 0);
+            Buffer[1] = (byte)(value >> 8);
+            Buffer[2] = (byte)(value >> 16);
+            Buffer[3] = (byte)(value >> 24);
+            Stream.Write(Buffer, 0, 4);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SerializeUInt64(ref ulong value)
         {
-            buffer[0] = (byte)value;
-            buffer[1] = (byte)(value >> 8);
-            buffer[2] = (byte)(value >> 16);
-            buffer[3] = (byte)(value >> 24);
-            buffer[4] = (byte)(value >> 32);
-            buffer[5] = (byte)(value >> 40);
-            buffer[6] = (byte)(value >> 48);
-            buffer[7] = (byte)(value >> 56);
-            Stream.Write(buffer, 0, 8);
+            Buffer[0] = (byte)value;
+            Buffer[1] = (byte)(value >> 8);
+            Buffer[2] = (byte)(value >> 16);
+            Buffer[3] = (byte)(value >> 24);
+            Buffer[4] = (byte)(value >> 32);
+            Buffer[5] = (byte)(value >> 40);
+            Buffer[6] = (byte)(value >> 48);
+            Buffer[7] = (byte)(value >> 56);
+            Stream.Write(Buffer, 0, 8);
         }
 
 
@@ -169,11 +146,11 @@ namespace Saket.Serialization
                 fixed(float* ptr = &value)
                 {
                     byte* TmpValue = (byte*)ptr;
-                    buffer[0] = TmpValue[0];
-                    buffer[1] = TmpValue[1];
-                    buffer[2] = TmpValue[2];
-                    buffer[3] = TmpValue[3];
-                    Stream.Write(buffer, 0, 4);
+                    Buffer[0] = TmpValue[0];
+                    Buffer[1] = TmpValue[1];
+                    Buffer[2] = TmpValue[2];
+                    Buffer[3] = TmpValue[3];
+                    Stream.Write(Buffer, 0, 4);
                 }
            }
         }
@@ -185,15 +162,15 @@ namespace Saket.Serialization
                 fixed (double* ptr = &value)
                 {
                     byte* TmpValue = (byte*)ptr;
-                    buffer[0] = TmpValue[0];
-                    buffer[1] = TmpValue[1];
-                    buffer[2] = TmpValue[2];
-                    buffer[3] = TmpValue[3];
-                    buffer[4] = TmpValue[4];
-                    buffer[5] = TmpValue[5];
-                    buffer[6] = TmpValue[6];
-                    buffer[7] = TmpValue[7];
-                    Stream.Write(buffer, 0, 8);
+                    Buffer[0] = TmpValue[0];
+                    Buffer[1] = TmpValue[1];
+                    Buffer[2] = TmpValue[2];
+                    Buffer[3] = TmpValue[3];
+                    Buffer[4] = TmpValue[4];
+                    Buffer[5] = TmpValue[5];
+                    Buffer[6] = TmpValue[6];
+                    Buffer[7] = TmpValue[7];
+                    Stream.Write(Buffer, 0, 8);
                 }
             }
         }
@@ -214,15 +191,15 @@ namespace Saket.Serialization
                 fixed (Vector2* ptr = &value)
                 {
                     byte* TmpValue = (byte*)ptr;
-                    buffer[0] = TmpValue[0];
-                    buffer[1] = TmpValue[1];
-                    buffer[2] = TmpValue[2];
-                    buffer[3] = TmpValue[3];
-                    buffer[4] = TmpValue[4];
-                    buffer[5] = TmpValue[5];
-                    buffer[6] = TmpValue[6];
-                    buffer[7] = TmpValue[7];
-                    Stream.Write(buffer, 0, 8);
+                    Buffer[0] = TmpValue[0];
+                    Buffer[1] = TmpValue[1];
+                    Buffer[2] = TmpValue[2];
+                    Buffer[3] = TmpValue[3];
+                    Buffer[4] = TmpValue[4];
+                    Buffer[5] = TmpValue[5];
+                    Buffer[6] = TmpValue[6];
+                    Buffer[7] = TmpValue[7];
+                    Stream.Write(Buffer, 0, 8);
                 }
             }
         }
@@ -234,19 +211,19 @@ namespace Saket.Serialization
                 fixed (Vector3* ptr = &value)
                 {
                     byte* TmpValue = (byte*)ptr;
-                    buffer[0] = TmpValue[0];
-                    buffer[1] = TmpValue[1];
-                    buffer[2] = TmpValue[2];
-                    buffer[3] = TmpValue[3];
-                    buffer[4] = TmpValue[4];
-                    buffer[5] = TmpValue[5];
-                    buffer[6] = TmpValue[6];
-                    buffer[7] = TmpValue[7];
-                    buffer[8] = TmpValue[8];
-                    buffer[9] = TmpValue[9];
-                    buffer[10] = TmpValue[10];
-                    buffer[11] = TmpValue[11];
-                    Stream.Write(buffer, 0, 12);
+                    Buffer[0] = TmpValue[0];
+                    Buffer[1] = TmpValue[1];
+                    Buffer[2] = TmpValue[2];
+                    Buffer[3] = TmpValue[3];
+                    Buffer[4] = TmpValue[4];
+                    Buffer[5] = TmpValue[5];
+                    Buffer[6] = TmpValue[6];
+                    Buffer[7] = TmpValue[7];
+                    Buffer[8] = TmpValue[8];
+                    Buffer[9] = TmpValue[9];
+                    Buffer[10] = TmpValue[10];
+                    Buffer[11] = TmpValue[11];
+                    Stream.Write(Buffer, 0, 12);
                 }
             }
         }
@@ -257,7 +234,7 @@ namespace Saket.Serialization
             {
                 fixed (Vector4* ptr = &value)
                 {
-                    fixed (byte* b = buffer)
+                    fixed (byte* b = Buffer)
                     {
                         if (AdvSimd.IsSupported)
                         {
@@ -271,7 +248,7 @@ namespace Saket.Serialization
                         {
                             throw new NotImplementedException();
                         }
-                        Stream.Write(buffer, 0, 16);
+                        Stream.Write(Buffer, 0, 16);
                     }
                 }
             }
@@ -284,7 +261,7 @@ namespace Saket.Serialization
             {
                 fixed (Matrix4x4* ptr = &value)
                 {
-                    fixed (byte* b = buffer)
+                    fixed (byte* b = Buffer)
                     {
                         if (AdvSimd.IsSupported)
                         {
@@ -310,7 +287,7 @@ namespace Saket.Serialization
                             throw new NotImplementedException();
                         }
 
-                        Stream.Write(buffer, 0, 64);
+                        Stream.Write(Buffer, 0, 64);
                     }
                 }
             }
@@ -322,7 +299,7 @@ namespace Saket.Serialization
             {
                 fixed (Quaternion* ptr = &value)
                 {
-                    fixed (byte* b = buffer)
+                    fixed (byte* b = Buffer)
                     {
                         if (AdvSimd.IsSupported)
                         {
@@ -336,11 +313,13 @@ namespace Saket.Serialization
                         {
                             throw new NotImplementedException();
                         }
-                        Stream.Write(buffer, 0, 16);
+                        Stream.Write(Buffer, 0, 16);
                     }
                 }
             }
         }
+
+        #endregion
 
         #region Generic Serialization Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -368,12 +347,12 @@ namespace Saket.Serialization
                     byte* bytes = (byte*)ptr;
                     for (int i = 0; i < length; i++)
                     {
-                        buffer[i] = (byte)bytes[i];
+                        Buffer[i] = (byte)bytes[i];
                     }
                 }
             }
 
-            Stream.Write(buffer, 0, length);
+            Stream.Write(Buffer, 0, length);
         }
 
 

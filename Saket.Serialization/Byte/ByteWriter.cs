@@ -2,7 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Saket.Serialization
+namespace Saket.Serialization.Byte
 {
     /// <summary>
     /// Writer struct able to serialize primities and ISerializables to byte array
@@ -16,11 +16,12 @@ namespace Saket.Serialization
             get => data.Length;
         }
         /// <summary> The absolute position of writer in bytes based on underlying array</summary>
-        public int AbsolutePosition {
+        public int AbsolutePosition
+        {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get =>absolutePosition;
+            get => absolutePosition;
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set => absolutePosition = value; 
+            set => absolutePosition = value;
         }
         /// <summary> How many bytes the writer has written. </summary>
         public int Count
@@ -35,7 +36,7 @@ namespace Saket.Serialization
             get => new ArraySegment<byte>(data, 0, count);
         }
         /// <summary>  </summary>
-        public byte[] DataRaw 
+        public byte[] DataRaw
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => data;
@@ -47,7 +48,7 @@ namespace Saket.Serialization
         /// Underlying array 
         /// </summary>
         byte[] data;
-        
+
         /// <summary> 
         /// The current writer position relative to underlying array 
         /// </summary>
@@ -62,8 +63,8 @@ namespace Saket.Serialization
 
         public ByteWriter(int intialCapacity = 64)
         {
-            this.data = new byte[intialCapacity];
-            this.count = 0;
+            data = new byte[intialCapacity];
+            count = 0;
         }
 
 
@@ -77,12 +78,12 @@ namespace Saket.Serialization
             {
                 newCapacity *= 2;
             }
-            if(newCapacity != data.Length)
+            if (newCapacity != data.Length)
                 Array.Resize(ref data, newCapacity);
         }
 
         // ---- Primitive Serialization ----
-        public void Write<T>(in T value) 
+        public void Write<T>(in T value)
             where T : unmanaged
         {
             fixed (T* ptr = &value)
@@ -90,7 +91,7 @@ namespace Saket.Serialization
                 Write(ptr, SizeOf<T>());
             }
         }
-        public void Write<T>(in T[] value) 
+        public void Write<T>(in T[] value)
             where T : unmanaged
         {
             if (value == null || value.Length <= 0)
@@ -98,7 +99,7 @@ namespace Saket.Serialization
                 Write(0);
                 return;
             }
-               
+
             Write(value.Length);
             fixed (T* ptr = value)
             {
@@ -116,11 +117,11 @@ namespace Saket.Serialization
         }
 
         // ---- Serializable Serialization ----
-        public void WriteSerializable<T>(in T value) where T : ISerializable, new() 
+        public void WriteSerializable<T>(in T value) where T : ISerializable, new()
         {
             //value.Serialize(this);
         }
-        public void WriteSerializable<T>(in T[] value) where T : ISerializable, new() 
+        public void WriteSerializable<T>(in T[] value) where T : ISerializable, new()
         {
             Write(value.Length);
             for (int i = 0; i < value.Length; i++)
@@ -130,7 +131,7 @@ namespace Saket.Serialization
         }
 
         // ---- String Serialization ----
-        public void Write(string s, bool oneByteChars = false) 
+        public void Write(string s, bool oneByteChars = false)
         {
             Write(s.Length);
             fixed (char* native = s)
@@ -147,7 +148,7 @@ namespace Saket.Serialization
             Marshal.Copy(new IntPtr(value), data, absolutePosition, length);
             absolutePosition += length;
             // 
-            this.count = Math.Max(this.count, absolutePosition);
+            count = Math.Max(count, absolutePosition);
         }
 
         public void Reset()
@@ -168,9 +169,9 @@ namespace Saket.Serialization
         {
             Write(value);
         }
-        public void SerializeEnum<T>(ref T value) where T: unmanaged, Enum
+        public void SerializeEnum<T>(ref T value) where T : unmanaged, Enum
         {
-            
+
         }
 
         public void Serialize<T>(ref T value) where T : ISerializable, new()

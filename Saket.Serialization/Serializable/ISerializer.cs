@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Saket.Serialization
 {
@@ -13,7 +9,13 @@ namespace Saket.Serialization
     public interface ISerializer
     {
         public long Position { get; set; }
+        /// <summary>
+        /// Whether is serializer is a reader.
+        /// </summary>
         public bool IsReader { get; }
+        /// <summary>
+        /// Whether is serializer is a writer. 
+        /// </summary>
         public bool IsWriter => !IsReader;
 
         /// <summary>
@@ -50,17 +52,17 @@ namespace Saket.Serialization
         /// <param name="value"></param>
         public void SerializeString(ref string value);
 
-        public void SerializeUInt16(ref UInt16 value);
-        public void SerializeUInt32(ref UInt32 value);
-        public void SerializeUInt64(ref UInt64 value);
+        public void SerializeUInt16(ref ushort value);
+        public void SerializeUInt32(ref uint value);
+        public void SerializeUInt64(ref ulong value);
 
-        public void SerializeInt16(ref Int16 value);
-        public void SerializeInt32(ref Int32 value);
-        public void SerializeInt64(ref Int64 value);
+        public void SerializeInt16(ref short value);
+        public void SerializeInt32(ref int value);
+        public void SerializeInt64(ref long value);
 
-        public void SerializeSingle(ref Single value);
-        public void SerializeDouble(ref Double value);
-        public void SerializeDecimal(ref Decimal value);
+        public void SerializeSingle(ref float value);
+        public void SerializeDouble(ref double value);
+        public void SerializeDecimal(ref decimal value);
 
         public void SerializeVector2(ref Vector2 value);
         public void SerializeVector3(ref Vector3 value);
