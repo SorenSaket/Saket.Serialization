@@ -36,9 +36,9 @@ namespace Saket.Serialization
         /// </summary>
         /// <param name="length"></param>
         /// <returns></returns>
-        public unsafe void SerializeBytes(ref byte* value, int count);
+        public unsafe void SerializeBytes(byte* value, int count);
 
-
+        /*
         public void SerializeBoolean(ref bool value);
 
         public void SerializeByte(ref byte value);
@@ -68,11 +68,55 @@ namespace Saket.Serialization
         public void SerializeVector3(ref Vector3 value);
         public void SerializeVector4(ref Vector4 value);
         public void SerializeMatrix4x4(ref Matrix4x4 value);
-        public void SerializeQuaternion(ref Quaternion value);
+        public void SerializeQuaternion(ref Quaternion value);*/
 
         //---- Generic ----
-        public void SerializeUnmanaged<T>(ref T value) where T : unmanaged;
+        public void Serialize<T>(ref T value) where T : unmanaged;
+        public void Serialize<T>(ref T[] value) where T : unmanaged
+        {
+            unsafe
+            {
+                int length = 0;
+                Serialize(ref length);
+                if (value.Length < length)
+                    value = new T[length];
+
+                for (int i = 0; i < length; i++)
+                {
+                    Serialize<T>(ref value[i]);
+                }
+            }
+        }
+
         public void SerializeEnum<T>(ref T value) where T : unmanaged, Enum;
-        public void SerializeSerializable<T>(ref T value) where T : ISerializable, new();
+
+        public void SerializeSerializable<T>(ref T value) where T : ISerializable, new()
+        { 
+            value.Serialize(this); 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        public void SerializeSerializable<T>(ref T[] value) where T : ISerializable, new()
+        {
+            unsafe
+            {
+                int length = 0;
+                Serialize(ref length);
+
+                if (value.Length < length)
+                {
+                    value = new T[length];
+                }
+
+                for (int i = 0; i < length; i++)
+                {
+                    SerializeSerializable<T>(ref value[i]);
+                }
+            }
+        }
     }
 }

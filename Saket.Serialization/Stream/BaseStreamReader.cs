@@ -11,7 +11,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Saket.Serialization
 {
@@ -35,6 +34,9 @@ namespace Saket.Serialization
         public bool IsReader => true;
 
         #endregion
+
+
+        private int currentBufferContentLength;
 
         public BaseStreamReader(Stream input)
         {
@@ -71,8 +73,8 @@ namespace Saket.Serialization
                 // old array will be collected by GC
                 Buffer = GC.AllocateUninitializedArray<byte>(newCapacity);
             }
-
             Stream.ReadExactly(Buffer, 0, numberOfBytes);
+            currentBufferContentLength = numberOfBytes;
             Position = 0;
             return true;
         }
@@ -81,12 +83,11 @@ namespace Saket.Serialization
         protected virtual void Advance(int length)
         {
             Position += length;
-#if DEBUG
-            if(Position > Buffer.Length)
+
+            if(Position > Buffer.Length ||Position > currentBufferContentLength)
             {
                 throw new IndexOutOfRangeException($"Read {Position - Buffer.Length} bytes past underlying Buffer.");
             }
-#endif
         }
      
     }

@@ -1,14 +1,18 @@
 using System;
+using System.Net;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Saket.Serialization.Byte
 {
     /// <summary>
     /// Writer struct able to serialize primities and ISerializables to byte array
     /// </summary>
-    public unsafe class ByteWriter
+    public struct ByteWriter : ISerializer, IWriter
     {
+        #region Properties
         /// <summary> The number of bytes avaliable to the writer </summary>
         public int Capacity
         {
@@ -42,8 +46,9 @@ namespace Saket.Serialization.Byte
             get => data;
         }
 
-        public bool IsReader => false;
+        #endregion
 
+        #region Variables
         /// <summary> 
         /// Underlying array 
         /// </summary>
@@ -60,7 +65,15 @@ namespace Saket.Serialization.Byte
         /// </summary>
         int count;
 
+        #endregion
 
+
+        public ByteWriter(byte[] data)
+        {
+            this.data = data;
+            count = 0;
+            
+        }
         public ByteWriter(int intialCapacity = 64)
         {
             data = new byte[intialCapacity];
@@ -68,22 +81,8 @@ namespace Saket.Serialization.Byte
         }
 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void EnsureCapacity(int requiredCapacity)
-        {
-            // Double in size every time
-            int newCapacity = data.Length;
-            // Double the capacity until theres enough
-            while (requiredCapacity > newCapacity)
-            {
-                newCapacity *= 2;
-            }
-            if (newCapacity != data.Length)
-                Array.Resize(ref data, newCapacity);
-        }
-
         // ---- Primitive Serialization ----
-        public void Write<T>(in T value)
+        public unsafe void Write<T>(in T value)
             where T : unmanaged
         {
             fixed (T* ptr = &value)
@@ -91,7 +90,7 @@ namespace Saket.Serialization.Byte
                 Write(ptr, SizeOf<T>());
             }
         }
-        public void Write<T>(in T[] value)
+        public unsafe void Write<T>(in T[] value)
             where T : unmanaged
         {
             if (value == null || value.Length <= 0)
@@ -100,26 +99,28 @@ namespace Saket.Serialization.Byte
                 return;
             }
 
-            Write(value.Length);
+            Write<int>(value.Length);
+            int size = SizeOf<T>();
             fixed (T* ptr = value)
             {
-                Write(ptr, SizeOf<T>() * value.Length);
+                Write(ptr, size * value.Length);
             }
         }
-        public void Write<T>(in ArraySegment<T> value)
+        public unsafe void Write<T>(in ArraySegment<T> value)
             where T : unmanaged
         {
             Write(value.Count);
+            int size = SizeOf<T>();
             fixed (T* ptr = value.Array)
             {
-                Write(ptr + value.Offset * SizeOf<T>(), SizeOf<T>() * value.Count);
+                Write(ptr + value.Offset * size, size * value.Count);
             }
         }
 
         // ---- Serializable Serialization ----
         public void WriteSerializable<T>(in T value) where T : ISerializable, new()
         {
-            //value.Serialize(this);
+            value.Serialize(this);
         }
         public void WriteSerializable<T>(in T[] value) where T : ISerializable, new()
         {
@@ -131,25 +132,26 @@ namespace Saket.Serialization.Byte
         }
 
         // ---- String Serialization ----
-        public void Write(string s, bool oneByteChars = false)
+        public unsafe void Write(string value)
         {
-            Write(s.Length);
-            fixed (char* native = s)
+            Write(value.Length);
+            fixed (char* native = value)
             {
-                Write(native, s.Length * sizeof(char));
+                Write(native, value.Length * sizeof(char));
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Write(void* value, int length)
-        {
-            EnsureCapacity(absolutePosition + length);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void Write(void* value, int length)
+        {
             Marshal.Copy(new IntPtr(value), data, absolutePosition, length);
             absolutePosition += length;
             // 
             count = Math.Max(count, absolutePosition);
         }
+
+
 
         public void Reset()
         {
@@ -165,19 +167,68 @@ namespace Saket.Serialization.Byte
             return Marshal.SizeOf(outputType);
         }
 
-        public void SerializeUnmanged<T>(ref T value) where T : unmanaged
-        {
-            Write(value);
-        }
-        public void SerializeEnum<T>(ref T value) where T : unmanaged, Enum
-        {
 
-        }
 
-        public void Serialize<T>(ref T value) where T : ISerializable, new()
+        public bool LoadBytes(int count)
         {
-            WriteSerializable(value);
+            if (data.Length < absolutePosition + count)
+                return false;
+            return true;
         }
 
+
+        #region IWriter
+        public void WriteSerde<T>(in T value) where T : ISerde, new()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteSerde<T>(in T[] value) where T : ISerde, new()
+        {
+            throw new NotImplementedException();
+        }
+
+
+        int IWriter.Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public unsafe void SerializeBytes(byte* value, int count)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+
+        #region ISerializer
+
+        bool ISerializer.IsReader => false;
+        long ISerializer.Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        bool ISerializer.LoadBytes(int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ISerializer.SerializeBytes(ref byte[] value, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        unsafe void ISerializer.SerializeBytes(byte* value, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ISerializer.Serialize<T>(ref T value)
+        {
+            throw new NotImplementedException();
+        }
+
+        void ISerializer.SerializeEnum<T>(ref T value)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        #endregion
     }
 }

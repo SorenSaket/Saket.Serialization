@@ -42,7 +42,7 @@ The recommend use is to implement the interface ISerde:
 		}
 	}
 ```
-Then you can easily conver your struct to binary:
+Then you can easily convert your struct to binary:
 
 ```csharp
 

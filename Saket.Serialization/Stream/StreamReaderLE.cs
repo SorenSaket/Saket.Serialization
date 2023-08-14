@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -11,8 +12,10 @@ namespace Saket.Serialization
     /// A stream reader that support preloading data into a buffer before interpreting it.
     /// !Important call <see cref="StreamReaderLE.LoadBytes(int)"/> before calling any Serialize functions!
     /// </summary>
-    public class StreamReaderLE : BaseStreamReader, ISerializer
+    public class StreamReaderLE : BaseStreamReader, ISerializer, IReader
     {
+        int IReader.Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public StreamReaderLE(Stream input) : base(input)
         {
         }
@@ -305,8 +308,19 @@ namespace Saket.Serialization
         #region Generic Serialization Functions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void SerializeUnmanaged<T>(ref T value) where T : unmanaged
+        public virtual void Serialize<T>(ref T value) where T : unmanaged
         {
+
+#if DEBUG
+            if(typeof(T).IsAssignableFrom(typeof(ISerializable)) ||
+                typeof(T).IsAssignableFrom(typeof(ISerde)))
+            {
+                
+                Console.WriteLine(
+"You're serializing a type by blitting but the type implements A serializable interface. Make sure this is what you want to do");
+            }
+
+#endif
             unsafe
             {
                 fixed (byte* p = Buffer)
@@ -316,7 +330,10 @@ namespace Saket.Serialization
                 }
             }
         }
-        
+
+
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SerializeEnum<T>(ref T value) where T : unmanaged, Enum
         {
@@ -331,12 +348,40 @@ namespace Saket.Serialization
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void SerializeSerializable<T>(ref T value) where T : ISerializable, new()
+        public unsafe void SerializeBytes(byte* value, int count)
         {
-            value.Serialize(this);
+            throw new NotImplementedException();
         }
 
+        public ArraySegment<byte> ReadBytes(int length)
+        {
+            throw new NotImplementedException();
+        }
+
+        public T Read<T>() where T : unmanaged
+        {
+            throw new NotImplementedException();
+        }
+
+        public T[] ReadArray<T>() where T : unmanaged
+        {
+            throw new NotImplementedException();
+        }
+
+        public T[] ReadArray<T>(T[] arr) where T : unmanaged
+        {
+            throw new NotImplementedException();
+        }
+
+        public string ReadString()
+        {
+            throw new NotImplementedException();
+        }
+
+        public T ReadSerializable<T>() where T : ISerializable
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

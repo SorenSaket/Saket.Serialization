@@ -12,8 +12,10 @@ namespace Saket.Serialization
     /// <summary>
     /// 
     /// </summary>
-    public class StreamWriterLE : BaseStreamWriter,  ISerializer
+    public class StreamWriterLE : BaseStreamWriter, ISerializer, IWriter
     {
+        int IWriter.Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public StreamWriterLE(Stream input) : base(input)
         {
         }
@@ -33,9 +35,9 @@ namespace Saket.Serialization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void SerializeBytes(ref byte* value, int count)
+        public unsafe void SerializeBytes(byte* value, int count)
         {
-            throw new NotImplementedException();
+            Stream.Write(new ReadOnlySpan<byte>(value, count));
         }
 
 
@@ -323,7 +325,12 @@ namespace Saket.Serialization
 
         #region Generic Serialization Functions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void SerializeUnmanaged<T>(ref T value) where T : unmanaged
+        public virtual void Serialize<T>(ref T value) where T : unmanaged
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Serialize<T>(ref T[] value) where T : unmanaged
         {
             throw new NotImplementedException();
         }
@@ -353,6 +360,61 @@ namespace Saket.Serialization
             }
 
             Stream.Write(Buffer, 0, length);
+        }
+
+        public void Write<T>(in T value) where T : unmanaged
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Write<T>(in T[] value) where T : unmanaged
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Write<T>(in ArraySegment<T> value) where T : unmanaged
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteSerializable<T>(in T value) where T : ISerializable, new()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteSerializable<T>(in T[] value) where T : ISerializable, new()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteSerde<T>(in T value) where T : ISerde, new()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteSerde<T>(in T[] value) where T : ISerde, new()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Write(string s, bool oneByteChars = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public unsafe void Write(void* value, int length)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteString(string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Write(string s)
+        {
+            throw new NotImplementedException();
         }
 
 
