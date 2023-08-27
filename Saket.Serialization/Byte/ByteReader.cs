@@ -197,11 +197,11 @@ namespace Saket.Serialization.Byte
         #region IReader
         int IReader.Position { get => RelativePosition; set => RelativePosition = value; }
 
-        public ArraySegment<byte> ReadBytes(int length)
+        public Span<byte> ReadBytes(int length)
         {
             var p = absolutePosition;
             Advance(length);
-            return new ArraySegment<byte>(data, p, length);
+            return new Span<byte>(data, p, length);
         }
 
         // ---- Primitive Unmanaged Serialization ---- 
@@ -213,7 +213,7 @@ namespace Saket.Serialization.Byte
                 fixed (byte* p = data)
                 {
                     int position = absolutePosition;
-                    Advance(Marshal.SizeOf<T>());
+                    Advance(SizeOf<T>());
                     return *(T*)&p[position];
                 }
             }
@@ -225,7 +225,7 @@ namespace Saket.Serialization.Byte
             if (length == 0)
                 return string.Empty;
             var segment = ReadBytes(length);
-            return Encoding.UTF8.GetString(segment.Array, segment.Offset, segment.Count);
+            return Encoding.UTF8.GetString(segment);
         }
 
         #endregion

@@ -331,9 +331,6 @@ namespace Saket.Serialization
             }
         }
 
-
-
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void SerializeEnum<T>(ref T value) where T : unmanaged, Enum
         {
@@ -353,7 +350,12 @@ namespace Saket.Serialization
             throw new NotImplementedException();
         }
 
-        public ArraySegment<byte> ReadBytes(int length)
+        #endregion
+
+
+        #region IReader
+
+        public Span<byte> ReadBytes(int length)
         {
             throw new NotImplementedException();
         }
@@ -382,6 +384,7 @@ namespace Saket.Serialization
         {
             throw new NotImplementedException();
         }
+
 
         #endregion
     }

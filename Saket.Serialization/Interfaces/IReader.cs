@@ -17,7 +17,7 @@ namespace Saket.Serialization
         /// </summary>
         /// <param name="length"></param>
         /// <returns></returns>
-        public ArraySegment<byte> ReadBytes(int length);
+        public Span<byte> ReadBytes(int length);
 
         // Generic
         public T Read<T>() where T : unmanaged;
