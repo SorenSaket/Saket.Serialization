@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Saket.Serialization
+namespace Saket.Serialization;
+
+public enum Endianness
 {
-    public enum Endianness
-    {
-        LittleEndian = 0,
-        BigEndian = 1,
-    }
+    LittleEndian = 0,
+    BigEndian = 1,
 }

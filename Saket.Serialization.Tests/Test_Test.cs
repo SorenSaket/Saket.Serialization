@@ -5,51 +5,51 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Saket.Serialization.Tests
+namespace Saket.Serialization.Tests;
+#if false
+[TestClass]
+public  class Test_Test
 {
-    [TestClass]
-    public  class Test_Test
+    [TestMethod]
+    public void DoesThisShitWorkQuestionMark()
     {
-        [TestMethod]
-        public void DoesThisShitWorkQuestionMark()
-        {
-            ulong val = (ulong)123123123123;
-            FastWriter writer = new();
+        ulong val = (ulong)123123123123;
+        FastWriter writer = new();
 
-            writer.Write(val);
+        writer.Write(val);
 
-            FastReader reader = new(writer.DataRaw);
+        FastReader reader = new(writer.DataRaw);
 
 
 
-            Assert.AreEqual(val, reader.ReadUInt64());
+        Assert.AreEqual(val, reader.ReadUInt64());
 
 
-        }
-        [TestMethod]
-        public void DoesThisShitWorkQuestionMarkElectricBoogaloo()
-        {
-            var stream = new MemoryStream();
-            var writer = new BinaryWriter(stream);
-            var reader = new BinaryReader(stream);
+    }
+    [TestMethod]
+    public void DoesThisShitWorkQuestionMarkElectricBoogaloo()
+    {
+        var stream = new MemoryStream();
+        var writer = new BinaryWriter(stream);
+        var reader = new BinaryReader(stream);
 
-            sbyte expected = (sbyte)-103;
+        sbyte expected = (sbyte)-103;
 
-            writer.Write(expected);
-            stream.Position = 0;
+        writer.Write(expected);
+        stream.Position = 0;
 
-            sbyte actual = reader.ReadSByte();
-
-
-            Assert.AreEqual(expected, actual);
+        sbyte actual = reader.ReadSByte();
 
 
-            byte squeze = (byte)expected;
+        Assert.AreEqual(expected, actual);
 
-            sbyte result = (sbyte)squeze;
 
-            Assert.AreEqual(expected, result);
+        byte squeze = (byte)expected;
 
-        }
+        sbyte result = (sbyte)squeze;
+
+        Assert.AreEqual(expected, result);
+
     }
 }
+#endif

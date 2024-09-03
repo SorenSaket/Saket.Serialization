@@ -6,25 +6,25 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Saket.Serialization.Tests.Stream
+namespace Saket.Serialization.Tests.Stream;
+#if false
+[TestClass]
+public class Test_StreamWriter
 {
-    [TestClass]
-    public class Test_StreamWriter
+    [TestMethod]
+    public void Write()
     {
-        [TestMethod]
-        public void Write()
-        {
-            MemoryStream stream = new MemoryStream();
-            StreamWriterLE writer= new StreamWriterLE(stream);
+        MemoryStream stream = new MemoryStream();
+        StreamWriterLE writer= new StreamWriterLE(stream);
 
-            short a = -27;
-            writer.SerializeInt16(ref a);
+        short a = -27;
+        writer.SerializeInt16(ref a);
 
-            stream.Position = 0;
-            var reader = new BinaryReader(stream);
+        stream.Position = 0;
+        var reader = new BinaryReader(stream);
 
-            Assert.AreEqual(a, reader.ReadInt16());
-        }
-
+        Assert.AreEqual(a, reader.ReadInt16());
     }
+
 }
+#endif

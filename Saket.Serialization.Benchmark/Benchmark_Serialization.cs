@@ -48,7 +48,7 @@ namespace Saket.Engine.Benchmark.Serialization
                 }
             }
         }
-        
+        /*
         [BenchmarkCategory("Steam Reader ser")]
         [Benchmark]
         public void ASaketSer()
@@ -65,6 +65,6 @@ namespace Saket.Engine.Benchmark.Serialization
                     reader.SerializeUInt64(ref temp[0]);
                 }
             }
-        }
+        }*/
     }
 }

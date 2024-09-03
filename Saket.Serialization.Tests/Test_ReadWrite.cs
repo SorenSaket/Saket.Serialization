@@ -2,84 +2,117 @@
 using System.Buffers;
 
 
-namespace Saket.Serialization.Tests
+namespace Saket.Serialization.Tests;
+#if true
+
+[TestClass]
+public class Test_ReadWrite
 {
-    [TestClass]
-    public class Test_ReadWrite
+    [TestMethod]
+    public void ReadWrite_Primitive()
     {
-        [TestMethod]
-        public void ReadWrite_Primitive()
+        var writer = (ISerializer)new ByteWriter(512);
+        var reader = (ISerializer)new ByteReader(((ByteWriter)writer).DataRaw);
+
+        float data = 23125.123f;
+        writer.Serialize(ref data);
+
+        float data2 = 0;
+        reader.Serialize(ref data2);
+
+        Assert.AreEqual(data, data2);
+    }
+    [TestMethod]
+    public void ReadWrite_PrimitiveArray()
+    {
+        var writer = (ISerializer)new ByteWriter(512);
+        var reader = (ISerializer)new ByteReader(((ByteWriter)writer).DataRaw);
+
+        float[] data = [2143.4f,7547.4f, 34653.1f];
+
+        writer.Serialize(ref data);
+
+        float[] data2 = [];
+
+        reader.Serialize(ref data2);
+
+        Assert.IsTrue(Enumerable.SequenceEqual(data, data2));
+    }
+
+    [TestMethod]
+    public void ReadWrite_PrimitiveDictionary()
+    {
+        var writer = (ISerializer)new ByteWriter(512);
+        var reader = (ISerializer)new ByteReader(((ByteWriter)writer).DataRaw);
+
+        Dictionary<uint, float> data = new()
         {
-            var writer = new ByteWriter();
-            var reader = new ByteReader(writer.DataRaw);
+            { 4, 4.1230f },
+            { 1254, 856f }
+        };
+
+        writer.Serialize(ref data);
+
+        Dictionary<uint, float> data2 = new();
+
+        reader.Serialize(ref data2);
+
+        Assert.IsTrue(Enumerable.SequenceEqual(data, data2));
+    }
+
+
+
+    [TestMethod]
+    public void ReadWrite_Enum()
+    {
+        var writer = (ISerializer)new ByteWriter(512);
+        var reader = (ISerializer)new ByteReader(((ByteWriter)writer).DataRaw);
+
+        TestEnum data = TestEnum.Max;
+
+        writer.Serialize(ref data);
+
+        TestEnum data2 = TestEnum.Default;
+
+        reader.Serialize(ref data2);
+
+        Assert.AreEqual(data, data2);
+    }
+
+
+    [TestMethod]
+    public void ReadWrite_String()
+    {
+        var writer = (ISerializer)new ByteWriter(512);
+        var reader = (ISerializer)new ByteReader(((ByteWriter)writer).DataRaw);
+
+        String data = "testdata";
+
+        writer.Serialize(ref data);
+
+        string data2 = "";
+
+        reader.Serialize(ref data2);
+
+        Assert.AreEqual(data, data2);
+    }
+
+
+    [TestMethod]
+    public void ReadWrite_Serializable()
+    {
+        var writer = (ISerializer)new ByteWriter(512);
+        var reader = (ISerializer)new ByteReader(((ByteWriter)writer).DataRaw);
+
+        SerializableObject data = new SerializableObject(123);
+     
+        writer.Serialize(ref data);
+
+        SerializableObject data2 = new SerializableObject();
         
-            float data = 23125.123f;
-            writer.Write(data);
+        reader.Serialize(ref data2);
 
-            Assert.AreEqual(data, reader.Read<float>());
-        }
-        [TestMethod]
-        public void ReadWrite_PrimitiveArray()
-        {
-            var writer = new ByteWriter();
-            var reader = new ByteReader(writer.DataRaw);
-
-            float[] data = new float[] {2143.4f,7547.4f, 34653.1f};
-            writer.Write(data);
-           
-            Assert.IsTrue(Enumerable.SequenceEqual(data, reader.ReadArray<float>()));
-        }
-
-
-        [TestMethod]
-        public void ReadWrite_Enum()
-        {
-            var writer = new ByteWriter();
-            var reader = new ByteReader(writer.DataRaw);
-
-            TestEnumUShort data = TestEnumUShort.max;
-            writer.Write(data);
-
-            Assert.AreEqual(data, reader.Read<TestEnumUShort>());
-        }
-
-        [TestMethod]
-        public void ReadWrite_Serializable()
-        {
-            var writer = new ByteWriter();
-            var reader = new ByteReader(writer.DataRaw);
-
-            TestSerializable data = new TestSerializable(253,6437, new int[] { 2143, 7547, 34653 });
-            writer.WriteSerializable(data);
-
-            var readData = reader.ReadSerializable<TestSerializable>();
-
-            Assert.AreEqual(data, readData);
-        }
-        [TestMethod]
-        public void ReadWrite_SerializableArray()
-        {
-            var writer = new ByteWriter();
-           
-
-            TestSerializable[] data = new TestSerializable[] {
-                new(253, 6437, new int[] { 2143, 7547, 34653 }),
-                new(455, 5733245, new int[] { 685, 678, 12312 }),
-                new(679, 50875, new int[] { 12302, 9789, 678 }),
-            };
-
-            writer.WriteSerializable(data);
-
-            var reader = new ByteReader(writer.DataRaw);
-            var readData = reader.ReadSerializableArray<TestSerializable>();
-            
-            Assert.IsTrue(Enumerable.SequenceEqual(data, readData));
-
-            ArrayBufferWriter<byte> rew = new ArrayBufferWriter<byte>();
-            rew.Write(BitConverter.GetBytes(23.1f));
-           
-        }
-
-
+        Assert.IsTrue(data.Equals(data2));
     }
 }
+#endif

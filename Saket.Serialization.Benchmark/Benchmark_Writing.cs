@@ -34,21 +34,6 @@ namespace Saket.Engine.Benchmark.Serialization
             stream = new MemoryStream(data);
         }
 
-        [BenchmarkCategory("StreamWriter")]
-        [Benchmark]
-        public void StreamWriter()
-        {
-            var writer = new Saket.Serialization.StreamWriterLE(stream);
-
-            for (int i = 0; i < InterationCount; i++)
-            {
-                stream.Position = 0;
-                for (int y = 0; y < ItemCount; y++)
-                {
-                    writer.SerializeVector4(ref testData);
-                }
-            }
-        }
 
         [BenchmarkCategory("BinaryWriter")]
         [Benchmark(Baseline = true)]

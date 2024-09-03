@@ -4,18 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Saket.Serialization.Tests
+namespace Saket.Serialization.Tests;
+
+internal class Test_IReader
 {
-    internal class Test_IReader
+    public void Basic()
     {
-        public void Basic()
-        {
-
-
-
-        }
 
 
 
     }
+
+
+
 }
