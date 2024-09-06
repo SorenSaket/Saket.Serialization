@@ -36,6 +36,13 @@ public struct ByteWriter : ISerializer
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => new ArraySegment<byte>(data, 0, count);
     }
+    /// <summary> The data that has been written to the underlying array </summary>
+    public Span<byte> DataAsSpan
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => new Span<byte>(data, 0, count);
+    }
+
     /// <summary>  </summary>
     public byte[] DataRaw
     {

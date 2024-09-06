@@ -1,65 +1,83 @@
-Binary Serialization for .Net.
+# Saket.Serialization
 
-Same implementation as the built-in BinaryReader is for some reason 1.6 times slower.
+## Binary Serialization for .Net.
+An easy to use Binary Serialization and deserialization library for .Net 8. Can be used to save data to disk or networking.
 
-Some Aspects where inspired by serialization in COM.Unity.Netcode.Gameobjects.
+## How to use
 
-Implement using ISerde or ISerializable:
+
+### Simple Example
+```csharp
+// You can write data to any byte array
+byte[] myData = new byte[512]; 
+
+// Create a new writer. Writer is a struct and doesn't allocate any Heap memory. You can create these as you please.
+// It's recommended to just create a new one every time you want to write to a byte[].
+ISerializer writer = new ByteWriter(myData);
+
+// You can easily serialize any unmanaged type
+Vector3 myVector = new (1.4f, 0.1f, -5f);
+writer.Serialize(ref myVector); // Pass you value with ref
+
+// You can read data from any byte[] 
+ISerializer reader = new ByteReader(myData);
+
+Vector3 newVector = Vector3.Zero;
+reader.Serialize(ref newVector);
+
+// newVector now has the value from  myVector
+```
+
+### Custom Serialization
+
+Implement using ISerializable:
 
 ```csharp
- 	public interface ISerde
-    {
-        void Serialize(IWriter writer);
-        void Deserialize(IReader reader);
-    }
-	
-    public interface ISerializable
-    {
-        void Serialize(ISerializer serializer);
-    }
+// Implement this interface on any object you want to serialize
+public interface ISerializable
+{
+    void Serialize(ISerializer serializer);
+}
 ```
 
 
-The recommend use is to implement the interface ISerde:
-
-
 ```csharp
+// A class with custom serialization
+public class MySaveFile : ISerializable
+{
+	public Vector3[] Positions;
+	public float Health;
+	public string Name;
 
-	public struct ComplexSerdeStruct : ISerde
+    void Serialize(ISerializer s)
 	{
-		public System.Numerics.Vector3 position;
-		public bool isActive;
-		
-
-		public void Serialize(IWriter writer){
-			writer.Write(position);
-			writer.Write(isActive);
-		}
-
-		public void Deserialize(IReader reader){
-			position = reader.ReadVector3();
-			isActive = reader.ReadBoolean();
-		}
+		s.Serialize(ref Positions);
+		s.Serialize(ref Health);
+		s.Serialize(ref Name);
 	}
+}
 ```
 Then you can easily convert your struct to binary:
+When serializing with the ISerializable function you can combine both Serializaiton and Deserialization in the same function.
 
 ```csharp
+MySaveFile save;
 
-	ByteWriter writer = new();
-	
-	ComplexSerdeStruct value = new(new Vector3(1.2f,54f, -3f), false);
+// Save MySaveFile to a file
+byte[] myData = new byte[512]; 
 
-	value.Serialize(writer);
+var writer = new ByteWriter(myData);
 
-	// The binary is now avaliable in writer.Data
+writer.Serialize(ref save);
 
+
+using (FileStream outputFile = File.Open("c:/myfile.txt", FileMode.OpenOrCreate))
+{
+    outputFile.Write(writer.DataAsSpan);
+}
 ```
 
-
-The generic Serialize<T> read methods are 12 times slower compared to a specfic read functions like reader.ReadUInt64(), but add the advantage of being easier to use. ._.
-
-When serializing with the ISerializable function you can combine both Serializaiton and Deserialization in the same function.
+### Extras
 
 ```csharp
 
@@ -83,7 +101,7 @@ void Serialize(ISerializer serializer){
 }
 ```
 
-Shortcuts:
+## References
 https://referencesource.microsoft.com/#mscorlib/system/io/binarywriter.cs
 
 

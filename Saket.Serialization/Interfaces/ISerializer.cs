@@ -8,6 +8,9 @@ namespace Saket.Serialization;
 /// </summary>
 public interface ISerializer
 {
+    // Considerr adding global ser overrides thingies
+    //public static Dictionary<Type, ISerializer> CustomSerializers { get; } = new Dictionary<Type, ISerializer>();
+
     public long Position { get; set; }
     /// <summary>
     /// Whether is serializer is a reader.

@@ -38,7 +38,6 @@ public class Test_ReadWrite
 
         Assert.IsTrue(Enumerable.SequenceEqual(data, data2));
     }
-
     [TestMethod]
     public void ReadWrite_PrimitiveDictionary()
     {
@@ -59,9 +58,6 @@ public class Test_ReadWrite
 
         Assert.IsTrue(Enumerable.SequenceEqual(data, data2));
     }
-
-
-
     [TestMethod]
     public void ReadWrite_Enum()
     {
@@ -78,8 +74,6 @@ public class Test_ReadWrite
 
         Assert.AreEqual(data, data2);
     }
-
-
     [TestMethod]
     public void ReadWrite_String()
     {
@@ -96,8 +90,6 @@ public class Test_ReadWrite
 
         Assert.AreEqual(data, data2);
     }
-
-
     [TestMethod]
     public void ReadWrite_Serializable()
     {
