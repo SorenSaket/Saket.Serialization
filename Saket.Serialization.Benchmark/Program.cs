@@ -12,7 +12,7 @@ public static class Program
     {
         var config = ManualConfig.Create(DefaultConfig.Instance).WithOptions(ConfigOptions.DisableOptimizationsValidator);
 
-        BenchmarkRunner.Run(typeof(Benchmark_Stream_Span), config);
+        BenchmarkRunner.Run(typeof(Benchmark_ArrayCopy), config);
         Console.ReadKey();
     }
 }
