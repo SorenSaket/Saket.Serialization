@@ -11,8 +11,7 @@ An easy to use Binary Serialization and deserialization library for .Net 8. Can 
 // You can write data to any byte array
 byte[] myData = new byte[512]; 
 
-// Create a new writer. Writer is a struct and doesn't allocate any Heap memory. You can create these as you please.
-// It's recommended to just create a new one every time you want to write to a byte[].
+// Create a new writer. 
 ISerializer writer = new ByteWriter(myData);
 
 // You can easily serialize any unmanaged type

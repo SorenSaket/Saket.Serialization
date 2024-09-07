@@ -8,7 +8,7 @@ namespace Saket.Serialization;
 /// <summary>
 /// Read directly from a byte Array.
 /// </summary>
-public struct ByteReader : ISerializer
+public class ByteReader : ISerializer
 {
     #region Properties
     /// <summary> The number of bytes avaliable to the reader </summary>
@@ -93,7 +93,7 @@ public struct ByteReader : ISerializer
 
 
     long ISerializer.Position { get => RelativePosition; set => RelativePosition = (int)value; }
-    readonly bool ISerializer.IsReader => true;
+    bool ISerializer.IsReader => true;
 
 
     public ByteReader(ArraySegment<byte> target)

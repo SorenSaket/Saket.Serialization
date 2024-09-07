@@ -7,7 +7,7 @@ namespace Saket.Serialization;
 /// <summary>
 /// Writer struct able to serialize primities and ISerializables to byte array
 /// </summary>
-public struct ByteWriter : ISerializer
+public class ByteWriter : ISerializer
 {
     #region Properties
     /// <summary> The number of bytes avaliable to the writer </summary>
@@ -71,7 +71,7 @@ public struct ByteWriter : ISerializer
 
     #endregion
 
-    readonly bool ISerializer.IsReader => false;
+    bool ISerializer.IsReader => false;
     long ISerializer.Position { get => AbsolutePosition; set => AbsolutePosition = (int)value; }
 
 
