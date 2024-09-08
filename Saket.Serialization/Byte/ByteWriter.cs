@@ -42,7 +42,6 @@ public class ByteWriter : ISerializer
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => new Span<byte>(data, 0, count);
     }
-
     /// <summary>  </summary>
     public byte[] DataRaw
     {
@@ -50,6 +49,8 @@ public class ByteWriter : ISerializer
         get => data;
     }
 
+
+    public bool ResizeInternalData = false;
     #endregion
 
     #region Variables
@@ -79,7 +80,6 @@ public class ByteWriter : ISerializer
     {
         this.data = data;
         count = 0;
-        
     }
     public ByteWriter(int intialCapacity = 64)
     {

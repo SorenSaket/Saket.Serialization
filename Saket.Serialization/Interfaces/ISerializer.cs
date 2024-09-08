@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Saket.Serialization;
 
@@ -40,7 +42,9 @@ public interface ISerializer
     // ---- String ----
     public void Serialize(ref string value)
     {
-        int length = value.Length;
+        int length = 0;
+        if (value != null)
+            length = value.Length;
         Serialize(ref length);
 
         Span<char> chars = stackalloc char[length];
@@ -54,6 +58,33 @@ public interface ISerializer
 
         value = new string(chars);
     }
+    public void Serialize(ref string[] value)
+    {
+        int length = value.Length;
+        Serialize(ref length);
+        if (value.Length != length)
+            value = new string[length];
+       
+        for (int i = 0; i < value.Length; i++)
+        {
+            Serialize(ref value[i]);
+        }
+    }
+    public void Serialize(ref List<string> list) 
+    {
+        int length = list.Count;
+        Serialize(ref length);
+        // Length now contains the length of the dictionary
+        // Enure list length. Pass unto span
+        ResizeList(list, length, "");
+        var span = (CollectionsMarshal.AsSpan(list));
+
+        for (int i = 0; i < span.Length; i++)
+        {
+            Serialize(ref span[i]);
+        }
+    }
+
 
     // ---- Generic Unmanged ----
     public void Serialize<T>(ref T value, ForUnmanaged unused = default) where T : unmanaged;
@@ -61,10 +92,10 @@ public interface ISerializer
     {
         int length = value.Length;
         Serialize(ref length);
-        if (value.Length < length)
+        if (value.Length != length)
             value = new T[length];
 
-        for (int i = 0; i < length; i++)
+        for (int i = 0; i < value.Length; i++)
         {
             Serialize(ref value[i]);
         }
@@ -73,15 +104,13 @@ public interface ISerializer
     {
         int length = list.Count;
         Serialize(ref length);
-        
-        list.Capacity = length;
-
         // Length now contains the length of the dictionary
-        for (int i = 0; i < length; i++)
+        ResizeList(list, length, default);
+        var span = (CollectionsMarshal.AsSpan(list));
+
+        for (int i = 0; i < span.Length; i++)
         {
-            T value = default;
-            Serialize(ref value);
-            list[i] = value;
+            Serialize(ref span[i]);
         }
     }
     public void Serialize<K, V>(ref Dictionary<K, V> dictionary, ForUnmanaged unused = default)
@@ -132,12 +161,12 @@ public interface ISerializer
         int length = value.Length;
         Serialize(ref length);
 
-        if (value.Length < length)
+        if (value.Length != length)
         {
             value = new T[length];
         }
 
-        for (int i = 0; i < length; i++)
+        for (int i = 0; i < value.Length; i++)
         {
             Serialize(ref value[i]);
         }
@@ -146,15 +175,13 @@ public interface ISerializer
     {
         int length = list.Count;
         Serialize(ref length);
-
-        list.Capacity = length;
-
         // Length now contains the length of the dictionary
-        for (int i = 0; i < length; i++)
+        ResizeList(list, length, new());
+        var span = (CollectionsMarshal.AsSpan(list));
+
+        for (int i = 0; i < span.Length; i++)
         {
-            T value = new();
-            Serialize(ref value);
-            list[i] = value;
+            Serialize(ref span[i]);
         }
     }
     public void Serialize<K, V>(ref Dictionary<K, V> dictionary)
@@ -191,6 +218,32 @@ public interface ISerializer
             }
         }
     }
+
+
+
+
+
+
+    // ---- Helper ----
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static void ResizeList<T>(List<T> list, int targetCount, T defaultValue)
+    {
+        if (list.Count > targetCount)
+        {
+            // Remove elements if the list is too long
+            list.RemoveRange(targetCount, list.Count - targetCount);
+        }
+        else if (list.Count < targetCount)
+        {
+            // Add elements if the list is too short
+            for (int i = list.Count; i < targetCount; i++)
+            {
+                list.Add(defaultValue);
+            }
+        }
+    }
+
 
     struct ForBytes { }
     struct ForUnmanaged { }
