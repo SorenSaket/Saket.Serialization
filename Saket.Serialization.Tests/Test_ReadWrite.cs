@@ -38,6 +38,24 @@ public class Test_ReadWrite
 
         Assert.IsTrue(Enumerable.SequenceEqual(data, data2));
     }
+
+    [TestMethod]
+    public void ReadWrite_List()
+    {
+        var writer = (ISerializer)new ByteWriter(512);
+        var reader = (ISerializer)new ByteReader(((ByteWriter)writer).DataRaw);
+
+        List<float> data = [2143.4f, 7547.4f, 34653.1f];
+
+        writer.Serialize(ref data);
+
+        List<float> data2 = [43];
+
+        reader.Serialize(ref data2);
+
+        Assert.IsTrue(Enumerable.SequenceEqual(data, data2));
+    }
+
     [TestMethod]
     public void ReadWrite_PrimitiveDictionary()
     {
@@ -52,7 +70,9 @@ public class Test_ReadWrite
 
         writer.Serialize(ref data);
 
-        Dictionary<uint, float> data2 = new();
+        Dictionary<uint, float> data2 = new(){
+            { 1254, 9f }
+        };
 
         reader.Serialize(ref data2);
 

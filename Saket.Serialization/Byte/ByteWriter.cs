@@ -98,6 +98,8 @@ public class ByteWriter : ISerializer
     {
         Marshal.Copy(new IntPtr(value), data, absolutePosition, length);
         absolutePosition += length;
+        if (absolutePosition >= data.Length)
+            throw new Exception("Exceded Underlying buffer");
         // 
         count = Math.Max(count, absolutePosition);
     }
