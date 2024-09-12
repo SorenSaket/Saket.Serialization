@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Saket.Serialization;
 
@@ -42,6 +43,12 @@ public class ByteWriter : ISerializer
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => new Span<byte>(data, 0, count);
     }
+
+    public string DataAsString(Encoding encoding)
+    {
+        return encoding.GetString(DataAsSpan);
+    }
+
     /// <summary>  </summary>
     public byte[] DataRaw
     {
@@ -79,30 +86,56 @@ public class ByteWriter : ISerializer
     public ByteWriter(byte[] data)
     {
         this.data = data;
-        count = 0;
+        this.count = 0;
     }
-    public ByteWriter(int intialCapacity = 64)
+    public ByteWriter(int intialCapacity = 64, bool ResizeInternalData = true)
     {
         this.data = new byte[intialCapacity];
-        count = 0;
+        this.count = 0;
+        this.ResizeInternalData = ResizeInternalData;
     }
 
     public void Reset()
     {
-        absolutePosition = 0;
-        count = 0;
+        this.absolutePosition = 0;
+        this.count = 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe void Write(void* value, int length)
     {
+        if ((absolutePosition+ length) >= data.Length)
+        {
+            //double the buffer size until it can fit data.length
+            if (ResizeInternalData)
+                EnsureCapacity(absolutePosition + length);
+            else
+                throw new Exception("Exceded Underlying buffer");
+        }
+
         Marshal.Copy(new IntPtr(value), data, absolutePosition, length);
         absolutePosition += length;
-        if (absolutePosition >= data.Length)
-            throw new Exception("Exceded Underlying buffer");
+
+
+      
         // 
         count = Math.Max(count, absolutePosition);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void EnsureCapacity(int requiredCapacity)
+    {
+        // Double in size every time
+        int newCapacity = data.Length;
+        // Double the capacity until theres enough
+        while (requiredCapacity > newCapacity)
+        {
+            newCapacity *= 2;
+        }
+        if (newCapacity != data.Length)
+            Array.Resize(ref data, newCapacity);
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal int SizeOf<T>()
