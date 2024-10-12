@@ -5,13 +5,15 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Saket.Serialization;
 
 public class SerializationHasher : ISerializer
 {
-    public HashCode HashCode;
-
+    public uint code;
+    private const uint FNVPrime = 16777619u;
+    private const uint FNVOffsetBasis = 2166136261u;
 
 
     bool ISerializer.IsReader => false;
@@ -20,12 +22,12 @@ public class SerializationHasher : ISerializer
 
     public SerializationHasher()
     {
-        HashCode = new HashCode();
+        code = 0;
     }
 
     public void Reset()
     {
-        HashCode = new HashCode();
+        code = 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -38,21 +40,49 @@ public class SerializationHasher : ISerializer
         Type outputType = typeof(T).IsEnum ? Enum.GetUnderlyingType(typeof(T)) : typeof(T);
         return Marshal.SizeOf(outputType);
     }
+    public static uint CombineHash(uint hash, uint value)
+    {
+        return hash ^ (value + 0x9e3779b9 + (hash << 6) + (hash >> 2));
+    }
 
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public unsafe void Write(void* value, int length)
+    {
+        uint hash = FNVOffsetBasis;
+        for (int i = 0; i < length; i++)
+        {
+            hash ^= ((byte*)value)[i];
+            hash *= FNVPrime;
+        }
+        code = CombineHash(code, hash);
+    }
     public void Serialize(ref Span<byte> value, ISerializer.ForBytes unused = default)
     {
-        HashCode.AddBytes(value);
+        unsafe
+        {
+            var length = value.Length;
+            Serialize(ref length);
+            var a = (byte*)Unsafe.AsPointer(ref MemoryMarshal.GetReference(value));
+            Write(a, value.Length);
+        }
     }
 
     public void Serialize<T>(ref T value, ISerializer.ForUnmanaged unused = default) where T : unmanaged
     {
-        HashCode.Add(value);
+        unsafe
+        {
+            var a = (T*)Unsafe.AsPointer(ref value);
+            Write(a, SizeOf<T>());
+        }
     }
 
     public void Serialize<T>(ref Enum value, ISerializer.ForEnum unused = default) where T : Enum
     {
-        HashCode.Add(value);
+        unsafe
+        {
+            var a = (T*)Unsafe.AsPointer(ref value);
+            Write(a, SizeOf<T>());
+        }
     }
 
     public bool LoadBytes(int count)

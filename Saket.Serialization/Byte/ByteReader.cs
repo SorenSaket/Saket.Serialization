@@ -198,6 +198,21 @@ public class ByteReader : ISerializer
 
     public bool LoadBytes(int count)
     {
+        int newAbsolutePosition = absolutePosition + count;
+        if (maxAbsolutePosition > 0)
+        {
+            if (newAbsolutePosition > maxAbsolutePosition)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (newAbsolutePosition > data.Length)
+            {
+                return false;
+            }
+        }
         return true;
     }
 }
