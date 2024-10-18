@@ -105,7 +105,7 @@ public interface ISerializer
         int length = list.Count;
         Serialize(ref length);
         // Length now contains the length of the dictionary
-        ResizeList(list, length, default);
+        ResizeList(list, length);
         var span = (CollectionsMarshal.AsSpan(list));
 
         for (int i = 0; i < span.Length; i++)
@@ -176,7 +176,7 @@ public interface ISerializer
         int length = list.Count;
         Serialize(ref length);
         // Length now contains the length of the dictionary
-        ResizeList(list, length, new());
+        ResizeList(list, length);
         var span = (CollectionsMarshal.AsSpan(list));
 
         for (int i = 0; i < span.Length; i++)
@@ -227,7 +227,23 @@ public interface ISerializer
     // ---- Helper ----
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static void ResizeList<T>(List<T> list, int targetCount, T defaultValue)
+    static void ResizeList<T>(List<T> list, int targetCount) where T : new()
+    {
+        if (list.Count > targetCount)
+        {
+            // Remove elements if the list is too long
+            list.RemoveRange(targetCount, list.Count - targetCount);
+        }
+        else if (list.Count < targetCount)
+        {
+            // Add elements if the list is too short
+            for (int i = list.Count; i < targetCount; i++)
+            {
+                list.Add(new T());
+            }
+        }
+    }
+    static void ResizeList<T>(List<T> list, int targetCount, T defaultValue = default)
     {
         if (list.Count > targetCount)
         {
